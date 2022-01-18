@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import ReactMapGL, { Marker, Popup, FlyToInterpolator } from "react-map-gl";
+import ReactMapGL, { Marker, Popup} from "react-map-gl";
 import useSupercluster from "use-supercluster";
 import data from "./data/oeuvres-dataG.json";
 import "./App.css";
@@ -9,14 +9,14 @@ import OeuvreMap from './OeuvreMap';
 
 
 function App() {
-
+    
     // DEFAULT MAP STATE
     const [viewport, setViewport] = useState({
       latitude: 49.434240,
       longitude: 1.089720,
       width: "100vw",
       height: "100vh",
-      zoom: 13
+      zoom: 10
     });
 
     // SELECTED ARTWORK STATE
@@ -29,7 +29,7 @@ function App() {
     const oeuvres = data;
     const points = oeuvres.map(oeuvre => ({
       type: "Feature",
-      properties: { cluster: false, oeuvreId: oeuvre.id, name: oeuvre.name, description: oeuvre.description },
+      properties: { cluster: false, oeuvreId: oeuvre.id, name: oeuvre.name, street: oeuvre.location.street.name },
       geometry: {
         type: "Point",
         coordinates: [
@@ -106,10 +106,7 @@ function App() {
                         latitude,
                         longitude,
                         zoom: expansionZoom,
-                        transitionInterpolator: new FlyToInterpolator({
-                          speed: 2
-                        }),
-                        transitionDuration: "auto"
+                        transitionDuration: 500
                       });
                     }}
                   >

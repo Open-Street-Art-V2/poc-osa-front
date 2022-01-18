@@ -3,6 +3,19 @@
   height: 100vh;
 }
 
+.title {
+  font-weight: 700;
+  font-size: 17px;
+  font-family: "Public Sans", sans-serif;
+}
+
+.desc {
+  font-size: 1rem;
+  font-family: "Public Sans", sans-serif;
+  font-weight: 400;
+  color: rgb(99, 115, 129);
+}
+
 .cluster-marker {
   border-radius: 50%;
   padding: 10px;
@@ -14,25 +27,26 @@
 .s-1 {
   width: 20px;
   height: 20px;
-  color: #000;
-  background: #51bbd6;
+  color: #fff;
+  background: #33c6a2;
 }
 
 .s-2 {
   width: 30px;
   height: 30px;
-  color: #000;
-  background: #f1f075;
+  color: #fff;
+  background: #3a4551;
 }
 
 .s-3 {
   width: 40px;
   height: 40px;
   color: #000;
-  background: #f28cb1;
+  background: #ffcc4d;
 }
 
 .OeuvreMap {
   width: 100px;
   height: 100px;
+  overflow: hidden;
 }

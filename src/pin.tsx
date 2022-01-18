@@ -10,10 +10,12 @@ const pinStyle = {
   stroke: 'none'
 };
 
-export default class Pin extends PureComponent {
+export default class Pin extends PureComponent<{ size: number , onClick: () => void}> {
 
   render() {
-    const {size = 25, onClick} = this.props;
+    const size = this.props.size;
+    const onClick = this.props.onClick;
+    //const {size = 25, onClick} = this.props;
 
     return (
       <svg 
