@@ -1,10 +1,10 @@
 import React, {PureComponent} from 'react';
 
-export default class CostumCluster extends PureComponent {
+export default class CostumCluster extends PureComponent<{ pointCount: number , pointsLng: number}> {
 
   render() {
-    const {pointCount} = this.props.pointCount;
-    const {length} = this.props.pointsLng;
+    const pointCount = this.props.pointCount;
+    const length = this.props.pointsLng;
 
     return (
       <div

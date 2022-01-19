@@ -6,6 +6,25 @@ import "./App.css";
 import Pin from './pin';
 import OeuvreMap from './OeuvreMap';
 
+type oeuvre = {
+  id : string,
+  name:  string,
+  about : string,
+  location : {
+    latitude : number,
+    street : {
+      id : string,
+      name : string
+    },
+    longitude : number
+  }
+}
+/*type point = {
+  cluster: boolean, 
+  oeuvreId: number, 
+  name: string, 
+  street: string
+}*/
 
 
 function App() {
@@ -20,33 +39,27 @@ function App() {
     });
 
     // SELECTED ARTWORK STATE
-    const [selectedArtWork, setselectedArtWork] = useState(null);
+    const [selectedArtWork , setselectedArtWork] = useState<any>(null);
 
     // REF TO GET BOUNDS OF THE MAP LATER ON CLUSTERS
-    const mapRef = useRef();
+    const mapRef = useRef<any>();
 
     // 
     const oeuvres = data;
-    const points = oeuvres.map(oeuvre => ({
+    const points = oeuvres.map((oeuvre: oeuvre) => ({
       type: "Feature",
       properties: { cluster: false, oeuvreId: oeuvre.id, name: oeuvre.name, street: oeuvre.location.street.name },
       geometry: {
         type: "Point",
         coordinates: [
-          parseFloat(oeuvre.location.longitude),
-          parseFloat(oeuvre.location.latitude)
+          oeuvre.location.longitude,
+          oeuvre.location.latitude
         ]
       }
     }))
 
     // GET BOUNDS : IN A FROM [lat,long,lat,long] (4 corners)
-    const bounds = mapRef.current
-      ? mapRef.current
-          .getMap()
-          .getBounds()
-          .toArray()
-          .flat()
-      : null;
+    const bounds = mapRef.current ? mapRef.current.getMap().getBounds().toArray().flat() : null;
 
     // ADD CLUSTERS, SUPERCLUSTER  
     // cluster options (70,20)
@@ -65,7 +78,7 @@ function App() {
           maxZoom={18}
           mapStyle={process.env.REACT_APP_MAPBOX_STYLE}
           mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-          onViewportChange={newViewport => {
+          onViewportChange={(newViewport: { latitude: number; longitude: number; width: string; height: string; zoom: number; }) => {
             setViewport({ ...newViewport });
           }}
           ref={mapRef}
@@ -105,8 +118,7 @@ function App() {
                         ...viewport,
                         latitude,
                         longitude,
-                        zoom: expansionZoom,
-                        transitionDuration: 500
+                        zoom: expansionZoom
                       });
                     }}
                   >
