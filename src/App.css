@@ -7,7 +7,7 @@
   max-width: 250px;
   font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
   height: fit-content;
-  max-height: 300px;
+  max-height: 200px;
   overflow: auto;
   display: auto;
 }

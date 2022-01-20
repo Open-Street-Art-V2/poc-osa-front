@@ -3,22 +3,24 @@ import ReactMapGL, {NavigationControl,GeolocateControl, Marker, Popup} from "rea
 import useSupercluster from "use-supercluster";
 import data from "./data/oeuvres-dataG.json";
 import "./App.css";
-import Pin from './pin';
-import OeuvreMap from './OeuvreMap';
+import { Pin, ArtMap} from './components';
 
-type oeuvre = {
-  id : string,
-  name:  string,
-  about : string,
-  location : {
-    latitude : number,
-    street : {
-      id : string,
-      name : string
-    },
-    longitude : number
+// TO BE CHANGED
+type artwork = {
+  statusCode: number,
+  art: {
+    id: string,
+    title: string,
+    artist: string,
+    latitude: number,
+    longitude: number,
+    created_at: string,
   }
 }
+
+// oeuvre
+
+
 
 const navControlStyle= {
   right: 10,
@@ -79,14 +81,14 @@ function App() {
 
     // GET DATA
     const oeuvres = data;
-    const points = oeuvres.map((oeuvre: oeuvre) => ({
+    const points = oeuvres.map((oeuvre: artwork) => ({
       type: "Feature",
-      properties: { cluster: false, oeuvreId: oeuvre.id, name: oeuvre.name, street: oeuvre.location.street.name , desc: oeuvre.about},
+      properties: { cluster: false, oeuvreId: oeuvre.art.id, name: oeuvre.art.title, artist: oeuvre.art.artist},
       geometry: {
         type: "Point",
         coordinates: [
-          oeuvre.location.longitude,
-          oeuvre.location.latitude
+          oeuvre.art.longitude,
+          oeuvre.art.latitude,
         ]
       }
     }))
@@ -194,7 +196,7 @@ function App() {
               }}
               anchor="top" 
             >
-              <OeuvreMap info={selectedArtWork.properties} />
+              <ArtMap info={selectedArtWork.properties} />
           
             </Popup>
             ) : null}
