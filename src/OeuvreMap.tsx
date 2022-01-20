@@ -4,7 +4,8 @@ type info = {
     cluster: boolean, 
     oeuvreId: number, 
     name: string, 
-    street: string
+    street: string,
+    desc: string
 }
 
 export default class OeuvreMap extends PureComponent<{info: info}> {
@@ -17,6 +18,7 @@ export default class OeuvreMap extends PureComponent<{info: info}> {
         <div className="OeuvreMap">
             <label className='title'>{info.name}</label>
             <p className='desc'>{info.street}</p>
+            <p className='desc'>{info.desc}</p>
         </div>
     );
   }

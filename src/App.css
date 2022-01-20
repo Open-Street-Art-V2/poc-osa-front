@@ -3,6 +3,15 @@
   height: 100vh;
 }
 
+.OeuvreMap {
+  max-width: 250px;
+  font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  height: fit-content;
+  max-height: 300px;
+  overflow: auto;
+  display: auto;
+}
+
 .title {
   font-weight: 700;
   font-size: 17px;
@@ -22,6 +31,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: -1;
 }
 
 .s-1 {
@@ -43,10 +53,4 @@
   height: 40px;
   color: #000;
   background: #ffcc4d;
-}
-
-.OeuvreMap {
-  width: 100px;
-  height: 100px;
-  overflow: hidden;
 }

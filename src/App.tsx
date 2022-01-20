@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import ReactMapGL, { Marker, Popup} from "react-map-gl";
+import ReactMapGL, {NavigationControl,GeolocateControl, Marker, Popup} from "react-map-gl";
 import useSupercluster from "use-supercluster";
 import data from "./data/oeuvres-dataG.json";
 import "./App.css";
@@ -19,7 +19,23 @@ type oeuvre = {
     longitude : number
   }
 }
-/*type point = {
+
+const navControlStyle= {
+  right: 10,
+  top: 20,
+  zIndex: 1
+};
+const geolocateControlStyle = {
+  left: 10,
+  top: 20,
+  zIndex: 1
+};
+
+/*type position = {
+  latitude : number,
+  longitude : number,
+}
+type point = {
   cluster: boolean, 
   oeuvreId: number, 
   name: string, 
@@ -27,8 +43,9 @@ type oeuvre = {
 }*/
 
 
+
 function App() {
-    
+
     // DEFAULT MAP STATE
     const [viewport, setViewport] = useState({
       latitude: 49.434240,
@@ -38,17 +55,33 @@ function App() {
       zoom: 10
     });
 
-    // SELECTED ARTWORK STATE
+    // GE CURRENT POSITION
+    /*function currentPos(){
+      navigator.geolocation.getCurrentPosition(
+         ({ coords }) => {
+           setViewport({... viewport,
+             latitude: coords.latitude, 
+             longitude: coords.longitude,
+             zoom: 12});
+         },
+         (blocked) => {
+           console.log('blocked');
+         },  
+         { maximumAge: 600_000 }
+       );
+     }*/
+
+    // INIT SELECTED ARTWORK
     const [selectedArtWork , setselectedArtWork] = useState<any>(null);
 
     // REF TO GET BOUNDS OF THE MAP LATER ON CLUSTERS
     const mapRef = useRef<any>();
 
-    // 
+    // GET DATA
     const oeuvres = data;
     const points = oeuvres.map((oeuvre: oeuvre) => ({
       type: "Feature",
-      properties: { cluster: false, oeuvreId: oeuvre.id, name: oeuvre.name, street: oeuvre.location.street.name },
+      properties: { cluster: false, oeuvreId: oeuvre.id, name: oeuvre.name, street: oeuvre.location.street.name , desc: oeuvre.about},
       geometry: {
         type: "Point",
         coordinates: [
@@ -83,6 +116,14 @@ function App() {
           }}
           ref={mapRef}
         >
+          <NavigationControl style={navControlStyle} />
+          <GeolocateControl
+            style={geolocateControlStyle}
+            showUserHeading={true}
+            positionOptions={{enableHighAccuracy: true}}
+            trackUserLocation={true}
+            auto
+          />
           
           {clusters.map(cluster => {
             const [longitude, latitude] = cluster.geometry.coordinates;
@@ -144,18 +185,20 @@ function App() {
           })}
           {selectedArtWork ? (
             <Popup
-              tipSize={3}
-              closeOnClick={true}
               latitude={selectedArtWork.geometry.coordinates[1]}
               longitude={selectedArtWork.geometry.coordinates[0]}
+              closeButton={false}
+              captureScroll={true}
               onClose={() => {
                 setselectedArtWork(null);
               }}
+              anchor="top" 
             >
               <OeuvreMap info={selectedArtWork.properties} />
           
             </Popup>
-          ) : null}
+            ) : null}
+          
         </ReactMapGL>
       </div>
     );
