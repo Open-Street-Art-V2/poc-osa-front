@@ -1,39 +1,48 @@
 import React, { useState, useRef } from "react";
-import ReactMapGL, {NavigationControl,GeolocateControl, Marker, Popup} from "react-map-gl";
+import ReactMapGL, {
+  NavigationControl,
+  GeolocateControl,
+  Marker,
+  Popup,
+} from "react-map-gl";
 import useSupercluster from "use-supercluster";
 import data from "./data/oeuvres-dataG.json";
 import "./App.css";
-import { Pin, ArtMap} from './components';
+import { Pin, ArtMap } from "./components";
 
 // TO BE CHANGED
 type artwork = {
-  statusCode: number,
+  statusCode: number;
   art: {
-    id: string,
-    title: string,
-    artist: string,
-    latitude: number,
-    longitude: number,
-    created_at: string,
-  }
-}
+    id: string;
+    title: string;
+    artist: string;
+    latitude: number;
+    longitude: number;
+    created_at: string;
+  };
+};
 
-// oeuvre
+type mapView = {
+  latitude: number;
+  longitude: number;
+  width: string;
+  height: string;
+  zoom: number;
+};
 
-
-
-const navControlStyle= {
-  right: 10,
-  top: 20,
-  zIndex: 1
+const navControlStyle = {
+  left: 10,
+  top: 60,
+  zIndex: 1,
 };
 const geolocateControlStyle = {
   left: 10,
   top: 20,
-  zIndex: 1
+  zIndex: 1,
 };
 
-/*type position = {
+/* type position = {
   latitude : number,
   longitude : number,
 }
@@ -42,23 +51,20 @@ type point = {
   oeuvreId: number, 
   name: string, 
   street: string
-}*/
-
-
+} */
 
 function App() {
+  // DEFAULT MAP STATE
+  const [viewport, setViewport] = useState({
+    latitude: 49.43424,
+    longitude: 1.08972,
+    width: "100vw",
+    height: "100vh",
+    zoom: 10,
+  });
 
-    // DEFAULT MAP STATE
-    const [viewport, setViewport] = useState({
-      latitude: 49.434240,
-      longitude: 1.089720,
-      width: "100vw",
-      height: "100vh",
-      zoom: 10
-    });
-
-    // GE CURRENT POSITION
-    /*function currentPos(){
+  // GET USER POSITION
+  /* function userPos(){
       navigator.geolocation.getCurrentPosition(
          ({ coords }) => {
            setViewport({... viewport,
@@ -71,139 +77,138 @@ function App() {
          },  
          { maximumAge: 600_000 }
        );
-     }*/
+     } */
 
-    // INIT SELECTED ARTWORK
-    const [selectedArtWork , setselectedArtWork] = useState<any>(null);
+  // INIT SELECTED ARTWORK
+  const [selectedArtWork, setselectedArtWork] = useState<any>(null);
 
-    // REF TO GET BOUNDS OF THE MAP LATER ON CLUSTERS
-    const mapRef = useRef<any>();
+  // REF TO GET BOUNDS OF THE MAP, USED LATER ON CLUSTERS
+  const mapRef = useRef<any>();
 
-    // GET DATA
-    const oeuvres = data;
-    const points = oeuvres.map((oeuvre: artwork) => ({
-      type: "Feature",
-      properties: { cluster: false, oeuvreId: oeuvre.art.id, name: oeuvre.art.title, artist: oeuvre.art.artist},
-      geometry: {
-        type: "Point",
-        coordinates: [
-          oeuvre.art.longitude,
-          oeuvre.art.latitude,
-        ]
-      }
-    }))
+  // GET DATA
+  const oeuvres = data;
+  const points = oeuvres.map((oeuvre: artwork) => ({
+    type: "Feature",
+    properties: {
+      cluster: false,
+      oeuvreId: oeuvre.art.id,
+      name: oeuvre.art.title,
+      artist: oeuvre.art.artist,
+    },
+    geometry: {
+      type: "Point",
+      coordinates: [oeuvre.art.longitude, oeuvre.art.latitude],
+    },
+  }));
 
-    // GET BOUNDS : IN A FROM [lat,long,lat,long] (4 corners)
-    const bounds = mapRef.current ? mapRef.current.getMap().getBounds().toArray().flat() : null;
+  // GET BOUNDS : [lat,long,lat,long] (4 corners)
+  const bounds = mapRef.current
+    ? mapRef.current.getMap().getBounds().toArray().flat()
+    : null;
 
-    // ADD CLUSTERS, SUPERCLUSTER  
-    // cluster options (70,20)
-    const { clusters, supercluster } = useSupercluster({
-      points,
-      bounds,
-      zoom: viewport.zoom,
-      options: { radius: 70, maxZoom: 20 }
+  // ADD CLUSTERS, SUPERCLUSTER
+  // cluster options (70,20)
+  const { clusters, supercluster } = useSupercluster({
+    points,
+    bounds,
+    zoom: viewport.zoom,
+    options: { radius: 70, maxZoom: 20 },
+  });
+
+  function markerClick(cluster: any, latitude: number, longitude: number) {
+    const expansionZoom = Math.min(
+      supercluster.getClusterExpansionZoom(cluster.id),
+      20
+    );
+
+    setViewport({
+      ...viewport,
+      latitude,
+      longitude,
+      zoom: expansionZoom,
     });
+  }
 
-    // 
-    return (
-      <div>
-        <ReactMapGL
-          {...viewport}
-          maxZoom={18}
-          mapStyle={process.env.REACT_APP_MAPBOX_STYLE}
-          mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-          onViewportChange={(newViewport: { latitude: number; longitude: number; width: string; height: string; zoom: number; }) => {
-            setViewport({ ...newViewport });
-          }}
-          ref={mapRef}
-        >
-          <NavigationControl style={navControlStyle} />
-          <GeolocateControl
-            style={geolocateControlStyle}
-            showUserHeading={true}
-            positionOptions={{enableHighAccuracy: true}}
-            trackUserLocation={true}
-            auto
-          />
-          
-          {clusters.map(cluster => {
-            const [longitude, latitude] = cluster.geometry.coordinates;
-            const {
-              cluster: isCluster,
-              point_count: pointCount
-            } = cluster.properties;
-            var style;
-            
-            if (isCluster) {
-              if(pointCount < 50) 
-                style = 1
-              else if (pointCount < 500)
-                style = 2
-              else style = 3;
-  
-              return (
-                <Marker
-                  key={`cluster-${cluster.id}`}
-                  latitude={latitude}
-                  longitude={longitude}
-                >
-                  <div
-                    className={`cluster-marker s-${style}`}
-                    
-                    onClick={() => {
-                      const expansionZoom = Math.min(
-                        supercluster.getClusterExpansionZoom(cluster.id),
-                        20
-                      );
-  
-                      setViewport({
-                        ...viewport,
-                        latitude,
-                        longitude,
-                        zoom: expansionZoom
-                      });
-                    }}
-                  >
-                    {pointCount}
-                  </div>
-                </Marker>
-              );
-            }
-  
+  return (
+    <div>
+      <ReactMapGL
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...viewport}
+        maxZoom={18}
+        mapStyle={process.env.REACT_APP_MAPBOX_STYLE}
+        mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+        onViewportChange={(newViewport: mapView) => {
+          setViewport({ ...newViewport });
+        }}
+        ref={mapRef}
+        keyboard={false}
+      >
+        <NavigationControl style={navControlStyle} />
+        <GeolocateControl
+          style={geolocateControlStyle}
+          showUserHeading
+          positionOptions={{ enableHighAccuracy: true }}
+          trackUserLocation
+          auto
+        />
+
+        {clusters.map((cluster) => {
+          const [longitude, latitude] = cluster.geometry.coordinates;
+          const { cluster: isCluster, point_count: pointCount } =
+            cluster.properties;
+          let style;
+
+          if (isCluster) {
+            if (pointCount < 50) style = 1;
+            else if (pointCount < 500) style = 2;
+            else style = 3;
+
             return (
               <Marker
-                key={`oeuvre-${cluster.properties.oeuvreId}`}
+                key={`cluster-${cluster.id}`}
                 latitude={latitude}
                 longitude={longitude}
               >
-              
-              <Pin size={20} onClick={() => setselectedArtWork(cluster)} />
-  
-                
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className={`cluster-marker s-${style}`}
+                  onClick={() => markerClick(cluster, latitude, longitude)}
+                  onKeyDown={() => {}}
+                >
+                  {pointCount}
+                </div>
               </Marker>
-              
             );
-          })}
-          {selectedArtWork ? (
-            <Popup
-              latitude={selectedArtWork.geometry.coordinates[1]}
-              longitude={selectedArtWork.geometry.coordinates[0]}
-              closeButton={false}
-              captureScroll={true}
-              onClose={() => {
-                setselectedArtWork(null);
-              }}
-              anchor="top" 
+          }
+
+          return (
+            <Marker
+              key={`oeuvre-${cluster.properties.oeuvreId}`}
+              latitude={latitude}
+              longitude={longitude}
             >
-              <ArtMap info={selectedArtWork.properties} />
-          
-            </Popup>
-            ) : null}
-          
-        </ReactMapGL>
-      </div>
-    );
+              <Pin size={20} onClick={() => setselectedArtWork(cluster)} />
+            </Marker>
+          );
+        })}
+        {selectedArtWork ? (
+          <Popup
+            latitude={selectedArtWork.geometry.coordinates[1]}
+            longitude={selectedArtWork.geometry.coordinates[0]}
+            closeButton={false}
+            captureScroll
+            onClose={() => {
+              setselectedArtWork(null);
+            }}
+            anchor="top"
+          >
+            <ArtMap data={selectedArtWork.properties} />
+          </Popup>
+        ) : null}
+      </ReactMapGL>
+    </div>
+  );
 }
 
 export default App;
