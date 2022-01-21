@@ -6,8 +6,8 @@ import ReactMapGL, {
   Popup,
 } from "react-map-gl";
 import useSupercluster from "use-supercluster";
-import data from "./data/oeuvres-dataG.json";
 import "./App.css";
+import useSwr from "swr";
 import { Pin, ArtMap } from "./components";
 
 // TO BE CHANGED
@@ -86,18 +86,22 @@ function App() {
   const mapRef = useRef<any>();
 
   // GET DATA
-  const oeuvres = data;
-  const points = oeuvres.map((oeuvre: artwork) => ({
+  const fetcher = (args: string) =>
+    fetch(args).then((response) => response.json());
+  const url = "http://127.0.0.1:3000/art";
+  const { data, error } = useSwr(url, { fetcher });
+  const oeuvres = data && !error ? data : [];
+  const points = oeuvres.map((obj: artwork) => ({
     type: "Feature",
     properties: {
       cluster: false,
-      oeuvreId: oeuvre.art.id,
-      name: oeuvre.art.title,
-      artist: oeuvre.art.artist,
+      oeuvreId: obj.art.id,
+      name: obj.art.title,
+      artist: obj.art.artist,
     },
     geometry: {
       type: "Point",
-      coordinates: [oeuvre.art.longitude, oeuvre.art.latitude],
+      coordinates: [obj.art.longitude, obj.art.latitude],
     },
   }));
 
