@@ -1,2 +1,2 @@
-export { default as ArtMap } from "./artMap";
-export { default as Pin } from "./pin";
+export { default as ArtMap } from "./Artwork.map";
+export { default as Pin } from "./Pin.map";
