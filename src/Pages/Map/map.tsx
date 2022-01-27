@@ -9,16 +9,18 @@ import useSupercluster from "use-supercluster";
 import "./map.css";
 import useSwr from "swr";
 import { Pin, ArtMap } from "../../Components";
-// import dataLoc from "./data.json";
 
 // TO BE CHANGED
 type artwork = {
-  id: string;
-  title: string;
-  artist: string;
-  latitude: string;
-  longitude: string;
-  created_at: string;
+  statusCode: number;
+  art: {
+    id: string;
+    title: string;
+    artist: string;
+    latitude: number;
+    longitude: number;
+    created_at: string;
+  };
 };
 
 type mapView = {
@@ -86,21 +88,20 @@ function Map() {
   // GET DATA
   const fetcher = (args: string) =>
     fetch(args).then((response) => response.json());
-  const url = "http://127.0.0.1:3008/art";
+  const url = "http://127.0.0.1:3000/art";
   const { data, error } = useSwr(url, { fetcher });
   const oeuvres = data && !error ? data : [];
-  // const oeuvres = dataLoc;
   const points = oeuvres.map((obj: artwork) => ({
     type: "Feature",
     properties: {
       cluster: false,
-      oeuvreId: obj.id,
-      name: obj.title,
-      artist: obj.artist,
+      oeuvreId: obj.art.id,
+      name: obj.art.title,
+      artist: obj.art.artist,
     },
     geometry: {
       type: "Point",
-      coordinates: [parseFloat(obj.longitude), parseFloat(obj.latitude)],
+      coordinates: [obj.art.longitude, obj.art.latitude],
     },
   }));
 
