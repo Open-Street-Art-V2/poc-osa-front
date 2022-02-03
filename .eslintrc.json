@@ -28,6 +28,12 @@
         "react/react-in-jsx-scope": "off",
         "semi": ["off", "always"],
         "quotes": ["off", "double"],
+        "prettier/prettier": [
+        "error",
+        {
+        "endOfLine": "auto"
+        }
+        ],
         "import/extensions": [
             "error",
             "ignorePackages",

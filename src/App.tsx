@@ -1,9 +1,8 @@
 import React from "react";
-import "./Assets/css/App.css";
-import Map from "./Pages/Map/map";
+import CreateAdminForm from "./Pages/Admin/createFormAdmin";
 
 function App() {
-  return <Map />;
+  return <CreateAdminForm />;
 }
 
 export default App;
