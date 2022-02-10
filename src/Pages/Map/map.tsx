@@ -178,7 +178,7 @@ function Map() {
                   tabIndex={0}
                   className={`cluster-marker s-${style}`}
                   onClick={() => markerClick(cluster, latitude, longitude)}
-                  onKeyDown={() => {}}
+                  onKeyDown={() => { }}
                 >
                   {pointCount}
                 </div>
